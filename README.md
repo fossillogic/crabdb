@@ -2,96 +2,94 @@
     <img src=".github/logo.png" alt="Blue Crab Tool Logo" width="620"/>
 </p>
 
-# Blue Crab Command Tool  
-### A Command-Line Utility for the Blue Crab Database Platform  
-Built by Fossil Logic
+# Blue Crab DB Tool  
+### A Command-Line Database Utility by **Fossil Logic**
 
-The Blue Crab Command Tool is a unified CLI for building, managing, and inspecting Blue Crab databases across MyShell, NoShell, and CacheShell. It supports schema workflows, key-value operations, FSON modeling, caching, git-chain versioning, and deep record-level introspection. With a consistent flag system and streamlined command set, it replaces multiple standalone database tools with one coherent interface.
-
----
-
-# Features
-
-- Create, open, clone, and manage Blue Crab databases  
-- Execute MyShell SQL-like queries with FSON integration  
-- Perform NoShell key-value operations with git-chain commits  
-- Manage CacheShell with TTL, eviction rules, and serialization  
-- Full git-chain lifecycle: commit, branch, merge, diff, log, rollback  
-- FSON schema creation, validation, and conversion  
-- Searching, scanning, and pattern matching across keys and records  
-- Monitoring of keys, commits, cache events, and DB health  
-- Structured summaries, statistics, and content analysis  
-- Cross-platform support (Linux, macOS, Windows)
+The **Blue Crab DB Tool** is a unified command-line interface for developing, administering, and managing **Blue Crab databases**. It consolidates the entire database lifecycle—creation, schema definition, key-value operations, queries, caching, versioning, branching, merging, snapshots, and introspection—into a coherent and predictable set of commands. Built atop Blue Crab’s git-chain commit model and schema-aware FSON type system, the tool provides transparent version history, fast atomic operations, and flexible workflows across MyShell, NoShell, and CacheShell paradigms. All global flags remain consistent across commands for clarity and portability.
 
 ---
 
-# Command Table
+## Features
 
-| **Command** | **Category** | **Description** | **Common Flags** |
-|-------------|--------------|-----------------|------------------|
-| `init` | Core | Create a new Blue Crab database. | `--path <dir>`, `--schema <file>`, `--mode <myshell/noshell/cacheshell>` |
-| `open` | Core | Open or attach to an existing database. | `--path <db>`, `--readonly` |
-| `clone` | Core | Clone a database using git-chain history. | `--branch <name>`, `--depth <n>` |
-| `drop` | Core | Delete a database. | `-f`, `--backup` |
-| `backup` | Core | Create a database snapshot. | `--full`, `--diff`, `--output <file>` |
-| `restore` | Core | Restore database from snapshot. | `--force`, `--preserve-time` |
-| `schema` | Core | View, update, or validate schema. | `--show`, `--apply <file>`, `--validate` |
-| `query` | MyShell | Execute SQL-like MyShell queries. | `--file <sql>`, `--limit <n>`, `--fson` |
-| `plan` | MyShell | Show query execution plan. | `--verbose`, `--costs` |
-| `explain` | MyShell | Explain MyShell query structure. | `--fson` |
-| `get` | NoShell | Retrieve values by key. | `--fson`, `--raw` |
-| `set` | NoShell | Insert or update key-value pairs. | `--ttl <sec>`, `--fson` |
-| `delete` | NoShell | Remove keys. | `--pattern` |
-| `keys` | NoShell | List keys. | `--prefix <pfx>`, `--limit <n>` |
-| `scan` | NoShell | Sequentially scan keyspace. | `--start <key>`, `--fson` |
-| `cache-get` | CacheShell | Retrieve cached value. | `--decode` |
-| `cache-set` | CacheShell | Store cached value. | `--ttl <sec>`, `--fson` |
-| `cache-clear` | CacheShell | Clear cache namespace. | `--all` |
-| `cache-stats` | CacheShell | Display cache metrics. | `--fson` |
-| `commit` | Git-Chain | Commit database changes. | `-m <msg>`, `--amend` |
-| `log` | Git-Chain | Show commit history. | `--limit <n>`, `--fson` |
-| `diff` | Git-Chain | Compare commits. | `--keys`, `--records` |
-| `branch` | Git-Chain | Manage branches. | `--create <name>`, `--delete <name>` |
-| `merge` | Git-Chain | Merge branches. | `--strategy <auto/git/fson>` |
-| `rollback` | Git-Chain | Reset database to earlier commit. | `--hard` |
-| `find` | Analysis | Search keys or records. | `--content <expr>`, `--prefix` |
-| `inspect` | Analysis | Inspect record metadata. | `--fson`, `--schema` |
-| `stats` | Analysis | Database statistics. | `--keys`, `--records` |
-| `summary` | Analysis | Generate structured database summary. | `--keywords`, `--topics`, `--entropy` |
-| `watch` | Monitoring | Monitor DB events. | `--events <list>`, `--interval <n>` |
-| `profile` | Monitoring | Performance profiling. | `--queries`, `--kv` |
-| `health` | Monitoring | Database consistency and health check. | `--repair` |
+- Create, initialize, clone, or drop Blue Crab databases
+- Import, export, migrate, and bulk-load records
+- Strong schema-aware operations using the FSON type system
+- SQL-like structured querying via MyShell syntax
+- Low-level, direct key-value manipulation via NoShell modes
+- CacheShell integration for in-memory caching, TTL management, and cache flushing
+- Commit history, branching, merging, diffing, and rollback powered by git-chain
+- Database snapshots and structural integrity checks
+- Live monitoring of database mutation events
+- Deep introspection of keys, values, types, and commit ancestry
 
 ---
 
-# Global Flags
+# Command Palette
+
+## Core Database Management Commands
+
+| **Command** | **Description** | **Common Flags** |
+|-------------|-----------------|------------------|
+| `init` | Create and initialize a new Blue Crab database. | `-f, --force` Overwrite existing directory<br>`--from <template>` Use a template |
+| `open` | Open an existing database and verify integrity. | `--readonly` Disable writes<br>`--check` Validate structure |
+| `drop` | Delete a Blue Crab database permanently. | `-f, --force` Skip confirmation<br>`--wipe` Secure-wipe |
+| `clone` | Clone a Blue Crab database with full commit history. | `--shallow` Partial history<br>`--branch <name>` Select branch |
+| `branch` | Create, list, or switch branches. | `-c, --create <name>` Create branch<br>`-s, --switch <name>` Switch branch |
+| `merge` | Merge a branch into the current one. | `--no-ff` Disable fast-forward<br>`--resolve <strategy>` Conflict strategy |
+| `commit` | Commit staged changes to the git-chain. | `-m <msg>` Commit message<br>`--amend` Amend last commit |
+| `rollback` | Rewind the database to a previous commit. | `--to <hash>` Target commit<br>`--soft` Keep working data<br>`--hard` Replace working data |
+| `schema` | Define or modify FSON schemas. | `-a, --apply <file>` Apply schema<br>`-v, --validate` Validate schema |
+| `put` | Insert or update a key-value pair. | `--fson` Use FSON input<br>`--ttl <sec>` TTL for caches |
+| `get` | Retrieve a key’s value. | `--raw` Raw output<br>`--fson` FSON output<br>`--meta` Include metadata |
+| `delete` | Remove a key or keyset. | `-r, --recursive` Remove nested keys |
+| `query` | Execute MyShell-style SQL-like queries. | `--plan` Show query plan<br>`--limit <n>` Limit rows |
+| `kv` | Execute NoShell-style key-value operations. | `--batch <file>` Batch mode |
+| `cache` | Manage CacheShell caching. | `--flush` Clear cache<br>`--ttl <sec>` Set global TTL |
+| `export` | Export data or full database snapshots. | `-f, --format <type>` fson/json/bin<br>`--keys <set>` Key subset |
+| `import` | Import or batch-load records. | `--merge` Merge keys<br>`--wipe` Clear before import |
+| `snapshot` | Capture a complete database snapshot. | `--name <label>` Snapshot label |
+| `diff` | Compare commits, branches, or snapshots. | `--keys` Key-level changes<br>`--fson` FSON output |
+| `inspect` | Inspect keys, snapshots, or commits. | `--meta` Metadata<br>`--history` Show ancestry |
+| `stats` | Generate database statistics. | `--keys` Key stats<br>`--storage` Storage metrics<br>`--fson` Structured output |
+| `watch` | Monitor real-time database activity. | `-e, --events <list>` Event filters<br>`-t, --interval <n>` Poll interval |
+| `repair` | Detect and fix database inconsistencies. | `--auto` Auto-repair |
+| `help` | Display help for commands. | `--man` Manual |
+
+---
+
+## Global Flags (Available to All Commands)
 
 | **Flag** | **Description** |
-|---------|------------------|
-| `--help` | Show help for any command. |
+|-----------|-----------------|
+| `--help` | Show command help. |
 | `--version` | Display tool version. |
 | `-v, --verbose` | Enable detailed output. |
 | `-q, --quiet` | Suppress output. |
-| `--dry-run` | Simulate actions without changes. |
-| `--color` | Colorize output. |
-| `--time` | Include timestamps in output. |
+| `--dry-run` | Simulate without altering data. |
+| `--color` | Enable colored output. |
+| `--time` | Show timestamps in output. |
 
 ---
 
 # Usage Examples
 
 | **Example** | **Description** |
-|--------------|-----------------|
-| `crab init --path db/ --schema schema.fson --mode=myshell` | Create a new database. |
-| `crab query --file setup.sql` | Run a MyShell SQL-like script. |
-| `crab set user:123 --fson '{name:"Ada"}'` | Insert an FSON record. |
-| `crab keys --prefix user:` | List all user keys. |
-| `crab commit -m "Seed initial data"` | Commit changes to git-chain. |
-| `crab diff --records HEAD~1 HEAD` | Compare two commit histories. |
-| `crab cache-set session:42 --ttl 3600` | Store a session in cache. |
-| `crab watch --events=commit,key` | Monitor live database activity. |
-| `crab summary --keywords --stats` | Generate high-level summary. |
-| `crab rollback --hard HEAD~2` | Restore to earlier commit. |
+|-------------|-----------------|
+| `crab init mydb/` | Create a new Blue Crab database. |
+| `crab open --check project.db` | Open database and validate structure. |
+| `crab put --fson user:1 "{name:cstr:'Alex', age:i32:30}"` | Insert a structured FSON record. |
+| `crab get --fson --meta user:1` | Retrieve value and metadata in FSON format. |
+| `crab query "SELECT name FROM users WHERE age > 20"` | Execute SQL-like query. |
+| `crab branch -c dev` | Create a branch named `dev`. |
+| `crab merge --resolve=ours dev` | Merge `dev` into the current branch. |
+| `crab rollback --to 7fa92c1 --hard` | Hard rollback to a specific commit. |
+| `crab snapshot --name before-import` | Create a labeled snapshot. |
+| `crab diff main dev --keys` | Compare branches at key granularity. |
+| `crab export -f fson --keys users > users.fson` | Export users as FSON. |
+| `crab import --merge newdata.fson` | Import and merge new data. |
+| `crab watch -e create,update` | Monitor creation and update events. |
+| `crab stats --storage` | Show storage metrics. |
+| `crab repair --auto` | Automatically fix errors. |
 
 ---
 
@@ -111,8 +109,8 @@ Ensure you have the following installed before starting:
 1. **Clone the Repository**:
 
     ```sh
-    git clone https://github.com/fossillogic/app-c.git
-    cd app-c
+    git clone https://github.com/fossillogic/crabdb.git
+    cd crabdb
     ```
 
 2. **Configure the Build**:
@@ -136,16 +134,16 @@ Ensure you have the following installed before starting:
 5. **Run the Project**:
 
     ```sh
-    <exe name>
+    crab
     ```
 
 ## **Contributing**
 
-Interested in contributing? Please open pull requests or create issues on the [GitHub repository](https://github.com/fossillogic/app-c).
+Interested in contributing? Please open pull requests or create issues on the [GitHub repository](https://github.com/fossillogic/crabdb).
 
 ## **Feedback and Support**
 
-For issues, questions, or feedback, open an issue on the [GitHub repository](https://github.com/fossillogic/app-c/issues).
+For issues, questions, or feedback, open an issue on the [GitHub repository](https://github.com/fossillogic/crabdb/issues).
 
 ## **License**
 
