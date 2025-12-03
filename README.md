@@ -26,24 +26,20 @@ It unifies initialization, storage control, backups, process management, logging
 
 ---
 
-## Core Database Commands
+# Core Database Commands
 
 | **Command** | **Description** | **Flags** |
 |-------------|-----------------|-----------|
 | `init` | Initialize a new Blue Crab database environment. | `--path <dir>` Target directory<br>`--force` Overwrite metadata<br>`--config <file>` Use config<br>`--mode <dev\|prod>` Initialization mode |
-| `backup` | Create a snapshot backup. | `--output <file>` Backup path<br>`--compress` Compress backup<br>`--encrypt` Encrypt output<br>`--include-logs` Include logs<br>`--consistent` Consistent snapshot |
-| `storage` | Inspect or modify database storage. | `--info` Storage stats<br>`--expand <size>` Add capacity<br>`--compact` Compact storage<br>`--check` Validate<br>`--repair` Attempt repair |
-| `start` | Start the database instance. | `--foreground` Run in foreground<br>`--config <file>` Use config<br>`--no-journal` Disable journaling<br>`--bootstrap` Init missing components |
-| `stop` | Gracefully stop the database. | `--timeout <sec>` Shutdown timeout<br>`--force` Immediate termination<br>`--drain` Wait for queries |
-| `restart` | Restart the instance. | `--timeout <sec>` Shutdown timeout<br>`--reload-config` Reload before restart<br>`--force` Hard restart |
-| `status` | Show runtime status and metrics. | `--verbose` Extra details<br>`--fson` FSON output<br>`--threads` List internal threads<br>`--storage` Include storage metrics |
-| `process` | List or inspect internal DB processes. | `--list` List processes<br>`--id <pid>` Show details<br>`--json` JSON output<br>`--stats` CPU/mem stats |
-| `kill` | Terminate a stuck DB process or worker. | `--id <pid>` Process ID<br>`--force` Hard kill<br>`--signal <sig>` Send custom signal |
-| `log` | View and filter logs. | `--level <trace\|debug\|info\|warn\|error>` Severity<br>`--tail <n>` Last N lines<br>`--follow` Stream logs<br>`--export <file>` Save logs<br>`--raw` Raw output |
-| `introspect` | Inspect schemas, indexes, caches, and query plans. | `--schema` Schemas<br>`--indexes` Index info<br>`--cache` Cache details<br>`--query-plan <crabql>` Query plan<br>`--fson` FSON |
-| `help` | Display help for commands. | `--command <name>` Command help<br>`--all` Full docs<br>`--examples` Usage examples |
-
----
+| `start` | Start the Blue Crab database instance. | `--foreground` Run in foreground<br>`--config <file>` Use config<br>`--no-journal` Disable journaling<br>`--bootstrap` Initialize missing components |
+| `stop` | Gracefully stop the database service. | `--timeout <sec>` Shutdown timeout<br>`--force` Immediate termination<br>`--drain` Wait for active queries |
+| `restart` | Restart the running Blue Crab instance. | `--timeout <sec>` Shutdown timeout<br>`--reload-config` Reload before restart<br>`--force` Hard restart |
+| `status` | Display runtime status, health, and metrics. | `--verbose` Extra details<br>`--json` JSON/FSON output<br>`--threads` List internal worker threads<br>`--storage` Include storage metrics |
+| `process` | List or inspect internal worker processes/sessions. | `--list` List processes<br>`--id <pid>` Show process details<br>`--json` JSON output<br>`--stats` CPU/memory statistics |
+| `kill` | Terminate a stuck worker or internal process. | `--id <pid>` Process ID<br>`--force` Hard kill<br>`--signal <sig>` Send custom signal |
+| `log` | View, filter, and export logs. | `--level <trace\|debug\|info\|warn\|error>` Severity filter<br>`--tail <n>` Last N lines<br>`--follow` Stream logs<br>`--export <file>` Export logs<br>`--raw` Raw output |
+| `introspect` | Inspect internal schemas, metadata, caches, and plans. | `--schema` Schema information<br>`--indexes` Index metadata<br>`--cache` Cache details<br>`--query-plan <crabql>` Explain/plan a CrabQL query<br>`--json` JSON/FSON output |
+| `help` | Display command documentation. | `--command <name>` Help for a specific command<br>`--all` Full documentation<br>`--examples` Show command usage examples |
 
 ## Global Flags
 
