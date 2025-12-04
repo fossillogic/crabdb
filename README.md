@@ -39,7 +39,7 @@
 | `close <dbname>` | Close database. | No flags |
 | `branch <name>` | Create or switch branch. | `--from <branch>` Source branch |
 | `merge <source> <target>` | Merge branch changes. | `--strategy <fast-forward/rebase/manual>` |
-| `stats <dbname>` | Show database statistics. | `--verbose` Detailed info<br>`--json` JSON output |
+| `stats <dbname>` | Show database statistics. | `--verbose` Detailed info<br>`--fson` FSON output |
 
 ---
 
@@ -47,7 +47,7 @@
 
 | **Subcommand** | **Description** | **Common Flags** |
 |----------------|-----------------|-----------------|
-| `list` | List users. | `--json` JSON output |
+| `list` | List users. | `--fson` FSON output |
 | `add <username>` | Add user with role. | `--role <role>` Assign role (admin, read, write)<br>`--password <password>` |
 | `passwd <username>` | Change password. | `--password <password>` New password |
 | `remove <username>` | Delete user. | `--force` Skip confirmation |
