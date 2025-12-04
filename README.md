@@ -1,74 +1,112 @@
 <p align="center">
-    <img src=".github/logo.png" alt="Blue Crab Database" width="620"/>
+    <img src=".github/logo.png" alt="Crab Tool Logo" width="620"/>
 </p>
 
-### A Database Power Utility by **Fossil Logic**
+### A Command-Line Power Utility by **Fossil Logic**
 
-**crabd** is a modern command-line management utility for Blue Crab databases.  
-It unifies initialization, storage control, backups, process management, logging, and deep introspection into one efficient CLI—ideal for developers, operators, and production administrators.
-
----
-
-# Features
-
-- Full lifecycle management (`start`, `stop`, `restart`, `status`)
-- Snapshot backups with compression and encryption
-- Storage diagnostics, expansion, repair, and compaction
-- Process and worker management (`process`, `kill`)
-- Real-time log inspection and filtering
-- Schema, cache, index, and query introspection
-- Metadata bootstrap and environment initialization
-- FSON output for automation and pipelines
+**CrabCtl** is the official **Blue Crab Database CLI**, designed for DBAs, developers, and operations teams. Every change in Blue Crab is **versioned, branched, and mergeable**, providing fully traceable history, rollback, and auditability. FSON provides self-describing, schema-aware structures for both simple and complex data.
 
 ---
 
-# Command Palette
+## Command Palette
+
+### Core Database Operations
+
+| **Command** | **Description** | **Common Flags** |
+|-------------|-----------------|-----------------|
+| `connect` | Connect to a Blue Crab instance. | `--host <host>` Database host<br>`--port <port>` Database port<br>`--user <username>` Login user<br>`--password <password>` Login password<br>`--ssl` Enable SSL |
+| `shell` | Open an interactive shell. | `--type <myshell/noshell/cacheshell>` Select interface<br>`--db <dbname>` Connect to a specific database |
+| `db` | Database management. | See sub-table below |
+| `user` | Manage database users. | See sub-table below |
+| `backup` | Backup and restore operations. | See sub-table below |
+| `status` | Show database instance or shell status. | `--verbose` Detailed output<br>`--fson` FSON output |
+| `metrics` | Show live performance metrics. | `--interval <s>` Refresh interval<br>`--fson` FSON output |
+| `queries` | Inspect queries (MyShell only). | `--slow` Show slow queries<br>`--limit <n>` Number of queries |
+| `connections` | Inspect active connections. | `--user <username>` Filter by user<br>`--db <dbname>` Filter by database |
+| `cluster` | Cluster and node management. | See sub-table below |
+| `help` | Display help. | `--examples` Usage examples<br>`--man` Full manual |
 
 ---
 
-# Core Database Commands
+#### `db` Subcommands
 
-| **Command** | **Description** | **Flags** |
-|-------------|-----------------|-----------|
-| `init` | Initialize a new Blue Crab database environment. | `--path <dir>` Target directory<br>`--force` Overwrite metadata<br>`--config <file>` Use config<br>`--mode <dev\|prod>` Initialization mode |
-| `start` | Start the Blue Crab database instance. | `--foreground` Run in foreground<br>`--config <file>` Use config<br>`--no-journal` Disable journaling<br>`--bootstrap` Initialize missing components |
-| `stop` | Gracefully stop the database service. | `--timeout <sec>` Shutdown timeout<br>`--force` Immediate termination<br>`--drain` Wait for active queries |
-| `restart` | Restart the running Blue Crab instance. | `--timeout <sec>` Shutdown timeout<br>`--reload-config` Reload before restart<br>`--force` Hard restart |
-| `status` | Display runtime status, health, and metrics. | `--verbose` Extra details<br>`--json` JSON/FSON output<br>`--threads` List internal worker threads<br>`--storage` Include storage metrics |
-| `process` | List or inspect internal worker processes/sessions. | `--list` List processes<br>`--id <pid>` Show process details<br>`--json` JSON output<br>`--stats` CPU/memory statistics |
-| `kill` | Terminate a stuck worker or internal process. | `--id <pid>` Process ID<br>`--force` Hard kill<br>`--signal <sig>` Send custom signal |
-| `log` | View, filter, and export logs. | `--level <trace\|debug\|info\|warn\|error>` Severity filter<br>`--tail <n>` Last N lines<br>`--follow` Stream logs<br>`--export <file>` Export logs<br>`--raw` Raw output |
-| `introspect` | Inspect internal schemas, metadata, caches, and plans. | `--schema` Schema information<br>`--indexes` Index metadata<br>`--cache` Cache details<br>`--query-plan <crabql>` Explain/plan a CrabQL query<br>`--json` JSON/FSON output |
-| `help` | Display command documentation. | `--command <name>` Help for a specific command<br>`--all` Full documentation<br>`--examples` Show command usage examples |
+| **Subcommand** | **Description** | **Common Flags** |
+|----------------|-----------------|-----------------|
+| `list` | List all databases. | `--fson` Output FSON |
+| `create <dbname>` | Create a new database (git-chain backed). | `--template <template>` Use template<br>`--owner <user>` Assign owner |
+| `drop <dbname>` | Delete a database. | `--force` Skip confirmation<br>`--cascade` Drop dependent objects |
+| `open <dbname>` | Open database for operations. | `--branch <branch>` Open a specific branch |
+| `close <dbname>` | Close database. | No flags |
+| `branch <name>` | Create or switch branch. | `--from <branch>` Source branch |
+| `merge <source> <target>` | Merge branch changes. | `--strategy <fast-forward/rebase/manual>` |
+| `stats <dbname>` | Show database statistics. | `--verbose` Detailed info<br>`--json` JSON output |
 
-## Global Flags
+---
+
+#### `user` Subcommands
+
+| **Subcommand** | **Description** | **Common Flags** |
+|----------------|-----------------|-----------------|
+| `list` | List users. | `--json` JSON output |
+| `add <username>` | Add user with role. | `--role <role>` Assign role (admin, read, write)<br>`--password <password>` |
+| `passwd <username>` | Change password. | `--password <password>` New password |
+| `remove <username>` | Delete user. | `--force` Skip confirmation |
+
+---
+
+#### `backup` Subcommands
+
+| **Subcommand** | **Description** | **Common Flags** |
+|----------------|-----------------|-----------------|
+| `create --db <dbname> --out <file>` | Backup database via git-chain commit. | `--compress` Compress backup<br>`--encrypt` Encrypt backup |
+| `list` | List backups. | `--fson` FSON output |
+| `restore --db <dbname> --in <file>` | Restore database from backup. | `--force` Overwrite<br>`--decrypt` Decrypt backup |
+
+---
+
+#### `cluster` Subcommands
+
+| **Subcommand** | **Description** | **Common Flags** |
+|----------------|-----------------|-----------------|
+| `info` | Show cluster info. | `--fson` FSON output |
+| `add-node <address>` | Add a node. | `--role <primary/replica>` |
+| `remove-node <node-id>` | Remove a node. | `--force` Skip confirmation |
+| `rebalance` | Rebalance data across nodes. | `--verbose` Detailed output |
+| `status` | Show cluster health. | `--fson` FSON output |
+
+---
+
+### Global Flags (Available to All Commands)
 
 | **Flag** | **Description** |
-|----------|-----------------|
-| `--help` | Show help. |
-| `--version` | Blue Crab version. |
-| `-v, --verbose` | Verbose output. |
+|-----------|-----------------|
+| `--help` | Show help for command. |
+| `--version` | Display CrabCtl version. |
+| `-v, --verbose` | Enable detailed output. |
 | `-q, --quiet` | Suppress output. |
-| `--dry-run` | Simulate actions. |
-| `--color` | Colorized output. |
-| `--time` | Timestamped output. |
+| `--dry-run` | Simulate without changing data. |
+| `--color` | Colorize output. |
 
 ---
 
-# Usage Examples
+### Usage Examples
 
 | **Example** | **Description** |
 |-------------|-----------------|
-| `crabd init --path db/ --mode=prod` | Initialize a production DB environment. |
-| `crabd start --foreground --config=crab.conf` | Start with configuration in the foreground. |
-| `crabd backup --output backup.crab --compress --encrypt` | Create compressed, encrypted backup. |
-| `crabd storage --info` | Display storage usage and metadata. |
-| `crabd storage --compact --check` | Compact and validate storage. |
-| `crabd stop --drain --timeout 30` | Stop only after active queries finish. |
-| `crabd log --follow --level=info` | Stream INFO-level logs. |
-| `crabd kill --id 42 --signal TERM` | Gracefully terminate a process. |
-| `crabd introspect --schema --indexes` | Inspect schemas and index structures. |
-| `crabd status --fson` | Machine-readable status. |
+| `crabctl connect --host 127.0.0.1 --port 4429 --user admin` | Connect to a local instance. |
+| `crabctl shell --type myshell --db warehouse` | Open MyShell for SQL-like queries. |
+| `crabctl shell --type noshell --db warehouse` | Open NoShell for direct key-value operations. |
+| `crabctl shell --type cacheshell --db cache` | Open CacheShell for in-memory cache operations. |
+| `crabctl db create warehouse --owner admin` | Create a git-chain backed database. |
+| `crabctl db branch feature-1 --from main` | Create and switch to a new branch. |
+| `crabctl db merge feature-1 main --strategy fast-forward` | Merge a feature branch into main. |
+| `crabctl user add analyst --role read --password secret` | Add a read-only user. |
+| `crabctl backup create --db warehouse --out /backups/warehouse.bcdump` | Backup the database via git-chain. |
+| `crabctl backup restore --db warehouse --in /backups/warehouse.bcdump --force` | Restore database from backup. |
+| `crabctl cluster add-node 10.0.0.5 --role replica` | Add a new replica node. |
+| `crabctl metrics --interval 5` | Display live metrics every 5 seconds. |
+| `crabctl queries --slow --limit 10` | Show the top 10 slow queries (MyShell). |
+| `crabctl connections --db warehouse` | List active connections to a database. |
 
 ---
 
@@ -88,8 +126,8 @@ Ensure you have the following installed before starting:
 1. **Clone the Repository**:
 
     ```sh
-    git clone https://github.com/fossillogic/crabdb.git
-    cd crabdb
+    git clone https://github.com/fossillogic/crabctl.git
+    cd crabctl
     ```
 
 2. **Configure the Build**:
@@ -113,16 +151,16 @@ Ensure you have the following installed before starting:
 5. **Run the Project**:
 
     ```sh
-    crab
+    crabctl
     ```
 
 ## **Contributing**
 
-Interested in contributing? Please open pull requests or create issues on the [GitHub repository](https://github.com/fossillogic/crabdb).
+Interested in contributing? Please open pull requests or create issues on the [GitHub repository](https://github.com/fossillogic/crabctl).
 
 ## **Feedback and Support**
 
-For issues, questions, or feedback, open an issue on the [GitHub repository](https://github.com/fossillogic/crabdb/issues).
+For issues, questions, or feedback, open an issue on the [GitHub repository](https://github.com/fossillogic/crabctl/issues).
 
 ## **License**
 
