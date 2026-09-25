@@ -1,0 +1,179 @@
+name: Meson CI
+
+on:
+  schedule:
+    - cron: '15 21 * * *'
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# =========================================================
+# Windows (MSVC)
+# =========================================================
+jobs:
+  build_msvc:
+    name: Microslop ${{ matrix.msvc_version }} (${{ matrix.libtype }})
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        msvc_version: [2019, 2022]
+        libtype: [shared, static]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Meson + Ninja + MSVC
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install meson ninja
+
+          if ("${{ matrix.msvc_version }}" -eq "2019") {
+            choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
+          } elseif ("${{ matrix.msvc_version }}" -eq "2022") {
+            choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --passive"
+          }
+
+          $env:CC="cl.exe"
+          $env:CXX="cl.exe"
+
+      - name: Configure
+        run: >
+          meson setup builddir_msvc_${{ matrix.msvc_version }}_${{ matrix.libtype }}
+          --fatal-meson-warnings
+          -Dwerror=true
+          -Dwith_test=enabled
+          -Dwarning_level=3
+          -Db_lundef=true
+          --default-library=${{ matrix.libtype }}
+
+      - name: Build
+        run: meson compile -C builddir_msvc_${{ matrix.msvc_version }}_${{ matrix.libtype }}
+
+      - name: Test
+        run: >
+          meson test
+          -C builddir_msvc_${{ matrix.msvc_version }}_${{ matrix.libtype }}
+          -v
+          --test-args="show --mode tree --verbose ci --result fail theme dark"
+
+# =========================================================
+# macOS
+# =========================================================
+  build_macos:
+    name: macOS (${{ matrix.libtype }})
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        libtype: [shared, static]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Xcode tools
+        run: |
+          if ! xcode-select -p &>/dev/null; then
+            sudo xcode-select --install
+            until xcode-select -p &>/dev/null; do sleep 5; done
+          fi
+          sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+
+      - name: Install Meson + Ninja
+        run: python -m pip install meson ninja
+
+      - name: Configure
+        run: >
+          OBJC=clang OBJCXX=clang++
+          meson setup builddir_${{ matrix.libtype }}
+          --fatal-meson-warnings
+          -Dwerror=true
+          -Dwith_test=enabled
+          -Dwarning_level=3
+          -Db_lundef=true
+          --default-library=${{ matrix.libtype }}
+
+      - name: Build
+        run: meson compile -C builddir_${{ matrix.libtype }}
+
+      - name: Test
+        run: >
+          meson test
+          -C builddir_${{ matrix.libtype }}
+          -v
+          --test-args="show --mode tree --verbose ci --result fail theme light"
+
+# =========================================================
+# Linux (Docker matrix)
+# =========================================================
+  build_linux:
+    name: Linux ${{ matrix.distro }} (${{ matrix.libtype }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [ubuntu, fedora, archlinux, debian]
+        libtype: [shared, static]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.distro }}
+          restore-keys: |
+            ${{ runner.os }}-buildx
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --file .github/ciimage/Dockerfile.${{ matrix.distro }} \
+            --tag meson-ci:${{ matrix.distro }} .
+
+      - name: Run Meson inside container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            meson-ci:${{ matrix.distro }} \
+            /bin/bash -c "
+              meson setup builddir_${{ matrix.libtype }} \
+                --fatal-meson-warnings \
+                -Dwerror=true \
+                -Dwith_test=enabled \
+                -Dwarning_level=3 \
+                -Db_lundef=true \
+                --default-library=${{ matrix.libtype }} && \
+              meson compile -C builddir_${{ matrix.libtype }} && \
+              meson test -C builddir_${{ matrix.libtype }} -v \
+                --test-args='show --mode tree --verbose ci --result fail theme mint'
+            "
