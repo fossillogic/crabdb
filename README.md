@@ -1,4 +1,4 @@
-# **Fossil Project**
+# **BlueCrab Database**
 
 This project template serves as a starting point for creating classic executable projects that can be published as applications on Docker or even via GitHub. It includes the necessary setup, compilation, installation, and running instructions to get your project up and running quickly.
 
@@ -18,8 +18,8 @@ Ensure you have the following installed before starting:
 1. **Clone the Repository**:
 
     ```sh
-    git clone https://github.com/fossillogic/app-c.git
-    cd app-c
+    git clone https://github.com/fossillogic/crabdb.git
+    cd crabdb
     ```
 
 2. **Configure the Build**:
@@ -43,16 +43,16 @@ Ensure you have the following installed before starting:
 5. **Run the Project**:
 
     ```sh
-    <exe name>
+    crabdb
     ```
 
 ## **Contributing**
 
-Interested in contributing? Please open pull requests or create issues on the [GitHub repository](https://github.com/fossillogic/app-c).
+Interested in contributing? Please open pull requests or create issues on the [GitHub repository](https://github.com/fossillogic/crabdb).
 
 ## **Feedback and Support**
 
-For issues, questions, or feedback, open an issue on the [GitHub repository](https://github.com/fossillogic/app-c/issues).
+For issues, questions, or feedback, open an issue on the [GitHub repository](https://github.com/fossillogic/crabdb/issues).
 
 ## **License**
 
