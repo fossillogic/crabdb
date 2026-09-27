@@ -47,7 +47,7 @@
 #include <unistd.h>
 #endif
 
-#define FOSSIL_APP_NAME "Sample App"
+#define FOSSIL_APP_NAME "CrabDB"
 #define FOSSIL_APP_VERSION "0.1.0"
 
 #endif /* FOSSIL_APP_CODE_H */
