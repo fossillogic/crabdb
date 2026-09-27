@@ -1,4 +1,4 @@
-project('Fossil App', 'c', 'cpp',
+project('CrabDB', 'c', 'cpp',
     meson_version: '>=1.10.0',
     license: 'Apache-2.0',
     version: '0.1.0',
